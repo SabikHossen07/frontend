@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   ArrowRight,
   GraduationCap,
@@ -5,17 +6,99 @@ import {
   Mail,
   ShieldCheck,
   Sparkles,
+  User,
   Users,
 } from "lucide-react";
 
-interface LoginPageProps {
-  onLogin: () => void;
+type Role = "student" | "supervisor" | "admin";
+
+interface LoginUser {
+  name: string;
+  email: string;
+  role: Role;
 }
 
+interface LoginPageProps {
+  onLogin: (user: LoginUser) => void;
+}
+
+// Render Backend URL Integration
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://captrack-backend-3c36.onrender.com";
+
 export function LoginPage({ onLogin }: LoginPageProps) {
+  const [isRegister, setIsRegister] = useState(false);
+
+  // Form Inputs
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("sabik@std.ewubd.edu");
+  const [password, setPassword] = useState("captrack123");
+  const [accountType, setAccountType] = useState<Role>("student");
+
+  // UI Status
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    const endpoint = isRegister ? "/api/auth/register" : "/api/auth/login";
+    const payload = isRegister
+      ? { name, email, password, role: accountType }
+      : { email, password };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if (isRegister) {
+          setSuccessMessage("Account created successfully! Please log in.");
+          setIsRegister(false);
+        } else {
+          if (data.token) {
+            localStorage.setItem("token", data.token);
+          }
+
+          const loggedUser: LoginUser = {
+            name: data.user?.name || name || email.split("@")[0],
+            email: data.user?.email || email,
+            role: (data.user?.role as Role) || accountType || "student",
+          };
+
+          onLogin(loggedUser);
+        }
+      } else {
+        setErrorMessage(
+          data.message ||
+            (isRegister ? "Account creation failed." : "Login failed. Check credentials.")
+        );
+      }
+    } catch (error) {
+      setErrorMessage(
+        "Server connection error! Render server is waking up. Please try again in 20 seconds."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-[#0f2744] text-white">
       <div className="grid min-h-screen lg:grid-cols-[1.05fr_0.95fr]">
+        {/* Hero Section */}
         <section className="relative hidden overflow-hidden px-12 py-10 lg:flex lg:flex-col lg:justify-between">
           <div className="absolute left-20 top-20 h-72 w-72 rounded-full bg-cyan-400/20 blur-3xl" />
           <div className="absolute bottom-24 right-12 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl" />
@@ -68,6 +151,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           </div>
         </section>
 
+        {/* Form Section */}
         <section className="flex items-center justify-center bg-slate-50 px-6 py-10 text-slate-950">
           <div className="w-full max-w-md">
             <div className="mb-8 lg:hidden">
@@ -83,70 +167,148 @@ export function LoginPage({ onLogin }: LoginPageProps) {
             </div>
 
             <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
-              <div className="mb-8">
+              <div className="mb-6">
                 <p className="text-sm font-medium uppercase tracking-[0.25em] text-cyan-700">
-                  Welcome Back
+                  {isRegister ? "Create Account" : "Welcome Back"}
                 </p>
-                <h2 className="mt-3 text-3xl font-bold tracking-tight">
-                  Login to CapTrack
+                <h2 className="mt-2 text-3xl font-bold tracking-tight">
+                  {isRegister ? "Join CapTrack" : "Login to CapTrack"}
                 </h2>
                 <p className="mt-2 text-slate-500">
-                  Use your university account to continue.
+                  {isRegister
+                    ? "Create an account with your EWU email."
+                    : "Use your university account to continue."}
                 </p>
               </div>
 
-              <div className="space-y-5">
+              {errorMessage && (
+                <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+                  {errorMessage}
+                </div>
+              )}
+
+              {successMessage && (
+                <div className="mb-4 rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+                  {successMessage}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {isRegister && (
+                  <>
+                    <label className="block">
+                      <span className="mb-1.5 block text-sm font-medium text-slate-700">
+                        Full Name
+                      </span>
+                      <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                        <User size={18} className="text-slate-400" />
+                        <input
+                          type="text"
+                          required
+                          placeholder="Your Name"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          className="w-full bg-transparent text-sm text-slate-900 outline-none"
+                        />
+                      </div>
+                    </label>
+
+                    <label className="block">
+                      <span className="mb-1.5 block text-sm font-medium text-slate-700">
+                        Account Type
+                      </span>
+                      <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                        <select
+                          value={accountType}
+                          onChange={(e) => setAccountType(e.target.value as Role)}
+                          className="w-full bg-transparent text-sm text-slate-900 outline-none"
+                        >
+                          <option value="student">Student (@std.ewubd.edu)</option>
+                          <option value="supervisor">Supervisor / Faculty</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </div>
+                    </label>
+                  </>
+                )}
+
                 <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-slate-700">
+                  <span className="mb-1.5 block text-sm font-medium text-slate-700">
                     Email Address
                   </span>
                   <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                     <Mail size={18} className="text-slate-400" />
                     <input
                       type="email"
-                      defaultValue="sabik@std.ewubd.edu"
-                      className="w-full bg-transparent text-sm outline-none"
+                      required
+                      placeholder="hossen@std.ewubd.edu"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full bg-transparent text-sm text-slate-900 outline-none"
                     />
                   </div>
                 </label>
 
                 <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-slate-700">
+                  <span className="mb-1.5 block text-sm font-medium text-slate-700">
                     Password
                   </span>
                   <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
                     <Lock size={18} className="text-slate-400" />
                     <input
                       type="password"
-                      defaultValue="captrack123"
-                      className="w-full bg-transparent text-sm outline-none"
+                      required
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full bg-transparent text-sm text-slate-900 outline-none"
                     />
                   </div>
                 </label>
 
-                <div className="flex items-center justify-between text-sm">
-                  <label className="flex items-center gap-2 text-slate-600">
-                    <input type="checkbox" defaultChecked />
-                    Remember me
-                  </label>
-                  <button className="font-medium text-cyan-700 hover:text-cyan-800">
-                    Forgot password?
-                  </button>
-                </div>
+                {!isRegister && (
+                  <div className="flex items-center justify-between text-sm">
+                    <label className="flex items-center gap-2 text-slate-600">
+                      <input type="checkbox" defaultChecked />
+                      Remember me
+                    </label>
+                    <button
+                      type="button"
+                      className="font-medium text-cyan-700 hover:text-cyan-800"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                )}
 
                 <button
-                  onClick={onLogin}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0f5f8f] px-5 py-3 font-semibold text-white shadow-lg shadow-cyan-900/20 transition hover:bg-[#0b527d]"
+                  type="submit"
+                  disabled={loading}
+                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0f5f8f] px-5 py-3 font-semibold text-white shadow-lg shadow-cyan-900/20 transition hover:bg-[#0b527d] disabled:opacity-50"
                 >
-                  Login
+                  {loading
+                    ? isRegister
+                      ? "Creating Account..."
+                      : "Logging in..."
+                    : isRegister
+                    ? "Create account"
+                    : "Login"}
                   <ArrowRight size={18} />
                 </button>
-              </div>
+              </form>
 
               <p className="mt-6 text-center text-sm text-slate-500">
-                Do not have an account?{" "}
-                <button className="font-semibold text-cyan-700">
-                  Create account
+                {isRegister ? "Already have an account? " : "Do not have an account? "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsRegister(!isRegister);
+                    setErrorMessage("");
+                    setSuccessMessage("");
+                  }}
+                  className="font-semibold text-cyan-700 hover:underline"
+                >
+                  {isRegister ? "Login" : "Create account"}
                 </button>
               </p>
             </div>
