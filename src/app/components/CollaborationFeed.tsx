@@ -100,7 +100,7 @@ const createPostConfig = {
 };
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "[https://captrack-backend-3c36.onrender.com](https://captrack-backend-3c36.onrender.com)/api",
 });
 
 API.interceptors.request.use((config) => {
