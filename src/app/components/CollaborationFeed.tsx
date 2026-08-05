@@ -162,7 +162,7 @@ export function CollaborationFeed({ viewerRole = "student" }: { viewerRole?: str
         );
       } catch (error) {
         console.error("Failed to load collaboration feed:", error);
-        toast.error("Failed to load collaboration feed from the server.");
+        toast.error(error?.response?.data?.message || "Failed to load collaboration feed from the server.");
       }
     };
 
@@ -255,7 +255,7 @@ export function CollaborationFeed({ viewerRole = "student" }: { viewerRole?: str
       })
       .catch((error) => {
         console.error("Failed to publish post:", error);
-        toast.error("Failed to publish post.");
+        toast.error(error?.response?.data?.message || "Failed to publish post.");
       });
   };
 
@@ -272,7 +272,7 @@ export function CollaborationFeed({ viewerRole = "student" }: { viewerRole?: str
       })
       .catch((error) => {
         console.error("Failed to update collaboration action:", error);
-        toast.error("Failed to update the post action.");
+        toast.error(error?.response?.data?.message || "Failed to update the post action.");
       });
   };
 
@@ -295,7 +295,7 @@ export function CollaborationFeed({ viewerRole = "student" }: { viewerRole?: str
       })
       .catch((error) => {
         console.error("Failed to save comment:", error);
-        toast.error("Failed to save comment.");
+        toast.error(error?.response?.data?.message || "Failed to save comment.");
       });
   };
 
@@ -309,7 +309,7 @@ export function CollaborationFeed({ viewerRole = "student" }: { viewerRole?: str
       })
       .catch((error) => {
         console.error("Failed to update like state:", error);
-        toast.error("Failed to update like state.");
+        toast.error(error?.response?.data?.message || "Failed to update like state.");
       });
   };
 
@@ -323,7 +323,7 @@ export function CollaborationFeed({ viewerRole = "student" }: { viewerRole?: str
       })
       .catch((error) => {
         console.error("Failed to update save state:", error);
-        toast.error("Failed to update save state.");
+        toast.error(error?.response?.data?.message || "Failed to update save state.");
       });
   };
 

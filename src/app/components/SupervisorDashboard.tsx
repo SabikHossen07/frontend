@@ -157,7 +157,7 @@ export function SupervisorDashboard({ onNavigate }: SupervisorDashboardProps) {
         setRecentStudentActivity(response.data.recentStudentActivity || []);
       } catch (err) {
         console.error("Supervisor dashboard fetch error:", err);
-        setError("Failed to load supervisor dashboard data.");
+        setError(err?.response?.data?.message || "Failed to load supervisor dashboard data.");
       }
     };
 
@@ -182,7 +182,7 @@ export function SupervisorDashboard({ onNavigate }: SupervisorDashboardProps) {
       setRecentStudentActivity(response.data.recentStudentActivity || []);
     } catch (err) {
       console.error("Supervisor request update error:", err);
-      setError("Failed to update supervision request.");
+      setError(err?.response?.data?.message || "Failed to update supervision request.");
     }
   };
 

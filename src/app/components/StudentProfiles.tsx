@@ -94,7 +94,7 @@ export function StudentProfiles({ viewerRole = "student" }: { viewerRole?: strin
         setOverview(response.data);
       } catch (err) {
         console.error("Student profiles fetch error:", err);
-        setError("Failed to load student profiles.");
+        setError(err?.response?.data?.message || "Failed to load student profiles.");
       } finally {
         setLoading(false);
       }

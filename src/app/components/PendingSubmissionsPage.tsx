@@ -115,7 +115,7 @@ export function PendingSubmissionsPage() {
       setReviewFocus(response.data.reviewFocus || "No submissions are waiting for review right now.");
     } catch (err) {
       console.error("Supervisor submissions fetch error:", err);
-      setError("Failed to load supervisor submissions.");
+      setError(err?.response?.data?.message || "Failed to load supervisor submissions.");
     } finally {
       setIsLoading(false);
     }
@@ -144,7 +144,7 @@ export function PendingSubmissionsPage() {
       );
     } catch (err) {
       console.error("Supervisor review update error:", err);
-      alert("Review update failed. Please make sure the backend server is running and try again.");
+      alert(err?.response?.data?.message || "Review update failed. Please make sure the backend server is running and try again.");
     }
   };
 
