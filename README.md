@@ -4,6 +4,10 @@ CapTrack is a full-stack MERN web application built to manage the complete lifec
 
 Built by **Group 5** for the Capstone Project course at **East West University**.
 
+<img width="1874" height="881" alt="Screenshot 2026-08-05 215807" src="https://github.com/user-attachments/assets/3b607b44-6809-4629-8cb7-c6cebfed4acc" />
+
+
+
 ---
 
 ## 🌐 Live Demo
