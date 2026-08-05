@@ -38,22 +38,6 @@ interface LoginUser {
   role: Role;
 }
 
-function ProjectAccessGate() {
-  return (
-    <div className="mx-auto flex min-h-full max-w-4xl items-center justify-center p-6">
-      <div className="w-full rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-cyan-500/10 text-cyan-600">
-          <span className="text-xl font-semibold">!</span>
-        </div>
-        <h1 className="text-2xl font-semibold text-foreground">Project Workspace Locked</h1>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Project group is not assigned yet. You will be able to access this workspace once a project group is assigned.
-        </p>
-      </div>
-    </div>
-  );
-}
-
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     () => Boolean(localStorage.getItem("token"))
@@ -140,13 +124,6 @@ export default function App() {
   };
 
   const renderPage = () => {
-    const projectPages: Page[] = ["workspace", "project_workspace", "tasks", "submissions", "feedback", "group_chat"];
-
-    // Global guard: if the project group is not assigned, show the access gate for any project‑related page.
-    if (role === "student" && !isProjectGroupAssigned && projectPages.includes(page)) {
-      return <ProjectAccessGate />;
-    }
-
     switch (page) {
       case "dashboard":
         if (role === "supervisor") {
@@ -175,7 +152,7 @@ export default function App() {
           return <AllProjectsPage />;
         }
 
-        return <ProjectWorkspace viewerRole={role} isProjectGroupAssigned={isProjectGroupAssigned} />;
+        return <ProjectWorkspace viewerRole={role} />;
 
       case "admin":
         return <AdminDashboard />;
@@ -212,7 +189,7 @@ export default function App() {
         return <FeedbackPage />;
 
       case "group_chat":
-        return <GroupWorkspace viewerRole={role} isProjectGroupAssigned={isProjectGroupAssigned} />;
+        return <GroupWorkspace viewerRole={role} />;
 
       case "archive":
         return <ProjectArchivePage />;
