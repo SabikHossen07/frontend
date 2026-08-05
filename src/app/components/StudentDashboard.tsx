@@ -35,7 +35,7 @@ import {
 
 // ─── API instance ─────────────────────────────────────────────────────────────
 
-const API = axios.create({ baseURL: "[https://captrack-backend-3c36.onrender.com](https://captrack-backend-3c36.onrender.com)/api" });
+const API = axios.create({ baseURL: "https://captrack-backend-3c36.onrender.com/api" });
 
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");

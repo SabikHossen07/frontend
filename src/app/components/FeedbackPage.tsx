@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 const API = axios.create({
-  baseURL: "[https://captrack-backend-3c36.onrender.com](https://captrack-backend-3c36.onrender.com)/api",
+  baseURL: "https://captrack-backend-3c36.onrender.com/api",
 });
 
 API.interceptors.request.use((config) => {
